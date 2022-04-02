@@ -1,0 +1,1 @@
+TEST_TOKEN_URI = "test_token_uri"
