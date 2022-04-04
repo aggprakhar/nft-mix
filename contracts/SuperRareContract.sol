@@ -5,6 +5,8 @@
 pragma solidity ^0.4.18;
 
 
+//import "@chainlink/contracts/VRFConsumerV2.sol";
+
 
 /**
  * @title ERC721 interface
@@ -338,7 +340,7 @@ interface ERC721Metadata /* is ERC721 */ {
 }
 
 
-contract SupeRare is ERC721Token, Ownable, ERC721Metadata {
+contract QolabaMarketplace is ERC721Token, Ownable, ERC721Metadata {
     using SafeMath for uint256;
 
     // Percentage to owner of SupeRare. (* 10) to allow for < 1%

@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 //import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 //import "hardhat/console.sol";
@@ -14,10 +15,18 @@ contract NFTMarketplace is ERC721URIStorage {
     Counters.Counter private _itemsSold;
 
     uint256 listingPrice = 0.025 ether;
-    address payable owner;
+    address payable private owner;
 
     mapping(uint256 => MarketItem) private idToMarketItem;
+    mapping(uint256 => BidItem) private idToBidItem;
 
+    struct BidItem {
+      uint256 bidId;
+      address payable bidder;
+      MarketItem marketItem;
+        bool accepted;
+        bool canceled;
+}
     struct MarketItem {
       uint256 tokenId;
       address payable seller;
@@ -33,6 +42,54 @@ contract NFTMarketplace is ERC721URIStorage {
       uint256 price,
       bool sold
     );
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function marketplace_owner() public view virtual returns (address) {
+        return owner;
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        require(marketplace_owner() == msg.sender, "Ownable: caller is not the owner");
+        _;
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions anymore. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby removing any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        _transferOwnership(address(0));
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        _transferOwnership(newOwner);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Internal function without access restriction.
+     */
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = owner;
+        owner = payable(newOwner);
+        emit OwnershipTransferred(oldOwner, newOwner);
+    }
+
 
 //    function initialize(address admin) public initializer {
 //        _admin = admin;
@@ -69,13 +126,14 @@ contract NFTMarketplace is ERC721URIStorage {
       uint256 price
     ) private {
       require(price > 0, "Price must be at least 1 wei");
-//      require(msg.value == listingPrice, "Price must be equal to listing price");
+//      require(msg.value > 0, "Price must be equal to listing");
 //      require(listingPrice, "Price must be equal to listing price");
 
       idToMarketItem[tokenId] =  MarketItem(
         tokenId,
         payable(msg.sender),
         payable(address(this)),
+
         price,
         false
       );
