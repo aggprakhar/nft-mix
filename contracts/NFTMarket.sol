@@ -4,24 +4,23 @@
 //import "@openzeppelin/contracts/utils/Counters.sol";
 //import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 //import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-//import "@openzeppelin/contracts/access/Ownable.sol";
 //
-////import "hardhat/console.sol";
+//// import "hardhat/console.sol";
 //
-//contract NFTMarketplace is Ownable, ERC721URIStorage {
+//contract QolabaMarketplace is ERC721URIStorage {
 //    using Counters for Counters.Counter;
 //    Counters.Counter private _tokenIds;
 //    Counters.Counter private _itemsSold;
 //
 //    uint256 listingPrice = 0.025 ether;
-////    address payable _owner;
+//    address payable owner;
 //
 //    mapping(uint256 => MarketItem) private idToMarketItem;
 //
 //    struct MarketItem {
 //      uint256 tokenId;
 //      address payable seller;
-//      address payable _owner;
+//      address payable owner;
 //      uint256 price;
 //      bool sold;
 //    }
@@ -29,18 +28,18 @@
 //    event MarketItemCreated (
 //      uint256 indexed tokenId,
 //      address seller,
-//      address _owner,
+//      address owner,
 //      uint256 price,
 //      bool sold
 //    );
 //
 //    constructor() ERC721("Metaverse Tokens", "METT") {
-////      _owner = payable(msg.sender);
+//      owner = payable(msg.sender);
 //    }
 //
 //    /* Updates the listing price of the contract */
 //    function updateListingPrice(uint _listingPrice) public payable {
-//      require(_owner == msg.sender, "Only marketplace _owner can update listing price.");
+//      require(owner == msg.sender, "Only marketplace owner can update listing price.");
 //      listingPrice = _listingPrice;
 //    }
 //
@@ -87,12 +86,12 @@
 //
 //    /* allows someone to resell a token they have purchased */
 //    function resellToken(uint256 tokenId, uint256 price) public payable {
-//      require(idToMarketItem[tokenId]._owner == msg.sender, "Only item _owner can perform this operation");
+//      require(idToMarketItem[tokenId].owner == msg.sender, "Only item owner can perform this operation");
 //      require(msg.value == listingPrice, "Price must be equal to listing price");
 //      idToMarketItem[tokenId].sold = false;
 //      idToMarketItem[tokenId].price = price;
 //      idToMarketItem[tokenId].seller = payable(msg.sender);
-//      idToMarketItem[tokenId]._owner = payable(address(this));
+//      idToMarketItem[tokenId].owner = payable(address(this));
 //      _itemsSold.decrement();
 //
 //      _transfer(msg.sender, address(this), tokenId);
@@ -106,12 +105,12 @@
 //      uint price = idToMarketItem[tokenId].price;
 //      address seller = idToMarketItem[tokenId].seller;
 //      require(msg.value == price, "Please submit the asking price in order to complete the purchase");
-//      idToMarketItem[tokenId]._owner = payable(msg.sender);
+//      idToMarketItem[tokenId].owner = payable(msg.sender);
 //      idToMarketItem[tokenId].sold = true;
 //      idToMarketItem[tokenId].seller = payable(address(0));
 //      _itemsSold.increment();
 //      _transfer(address(this), msg.sender, tokenId);
-//      payable(_owner).transfer(listingPrice);
+//      payable(owner).transfer(listingPrice);
 //      payable(seller).transfer(msg.value);
 //    }
 //
@@ -123,7 +122,7 @@
 //
 //      MarketItem[] memory items = new MarketItem[](unsoldItemCount);
 //      for (uint i = 0; i < itemCount; i++) {
-//        if (idToMarketItem[i + 1]._owner == address(this)) {
+//        if (idToMarketItem[i + 1].owner == address(this)) {
 //          uint currentId = i + 1;
 //          MarketItem storage currentItem = idToMarketItem[currentId];
 //          items[currentIndex] = currentItem;
@@ -140,14 +139,14 @@
 //      uint currentIndex = 0;
 //
 //      for (uint i = 0; i < totalItemCount; i++) {
-//        if (idToMarketItem[i + 1]._owner == msg.sender) {
+//        if (idToMarketItem[i + 1].owner == msg.sender) {
 //          itemCount += 1;
 //        }
 //      }
 //
 //      MarketItem[] memory items = new MarketItem[](itemCount);
 //      for (uint i = 0; i < totalItemCount; i++) {
-//        if (idToMarketItem[i + 1]._owner == msg.sender) {
+//        if (idToMarketItem[i + 1].owner == msg.sender) {
 //          uint currentId = i + 1;
 //          MarketItem storage currentItem = idToMarketItem[currentId];
 //          items[currentIndex] = currentItem;
